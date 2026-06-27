@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<!-- saved from url=(0050)file:///C:/Users/dron/Downloads/CyberCop%20AI.html -->
+<html lang="he" dir="rtl" id="htmlRoot"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberCop AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link href="./index_files/css2" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#070d1a;--bg-panel:#0d1a2e;--bg-panel-2:#112239;--line:#1c3354;
+    --cyan:#1fd8d8;--cyan-dim:#0e8b8b;--red:#ff4d5e;--green:#3ad29f;
+    --text:#e9f1f8;--text-dim:#7e93ad;--text-faint:#4d617e;
+  }
+  *{box-sizing:border-box;}html,body{margin:0;padding:0;}
+  body{
+    background:radial-gradient(ellipse 1200px 600px at 50% -10%,rgba(31,216,216,0.08),transparent 60%),var(--bg-deep);
+    color:var(--text);font-family:'Assistant',sans-serif;
+    min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:28px 14px 60px;
+  }
+  .shell{width:100%;max-width:560px;}
+  .console{
+    background:linear-gradient(180deg,var(--bg-panel),var(--bg-panel-2));
+    border:1px solid var(--line);border-radius:18px;overflow:hidden;
+    box-shadow:0 30px 80px -30px rgba(0,0,0,0.7),0 0 0 1px rgba(31,216,216,0.04) inset;
+  }
+  /* topbar */
+  .topbar{position:relative;padding:20px 22px 18px;border-bottom:1px solid var(--line);overflow:hidden;}
+  .scanline{
+    position:absolute;top:0;inset-inline-end:-20%;width:55%;height:200%;
+    background:linear-gradient(100deg,transparent,rgba(31,216,216,0.10),transparent);
+    animation:sweep 5s linear infinite;pointer-events:none;
+  }
+  @keyframes sweep{0%{transform:translateX(0);}100%{transform:translateX(-340%);}}
+  html[dir="ltr"] .scanline{animation-name:sweepLtr;}
+  @keyframes sweepLtr{0%{transform:translateX(0);}100%{transform:translateX(340%);}}
+  .topbar-row{display:flex;align-items:center;gap:12px;position:relative;z-index:1;}
+  .badge-mark{
+    width:44px;height:44px;flex:0 0 auto;border-radius:11px;
+    background:linear-gradient(155deg,var(--cyan),var(--cyan-dim));
+    display:flex;align-items:center;justify-content:center;box-shadow:0 0 22px rgba(31,216,216,0.45);
+  }
+  .badge-mark svg{width:24px;height:24px;}
+  .topbar h1{font-family:'Heebo',sans-serif;font-weight:900;font-size:19px;margin:0;}
+  .topbar .sub{font-family:'Fira Code',monospace;font-size:11px;color:var(--cyan);display:flex;align-items:center;gap:6px;margin-top:2px;}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 1.8s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
+  .lang-toggle{
+    margin-inline-start:auto;font-family:'Fira Code',monospace;font-size:11.5px;font-weight:600;
+    color:var(--cyan);background:rgba(31,216,216,0.08);border:1px solid rgba(31,216,216,0.35);
+    border-radius:8px;padding:6px 10px;cursor:pointer;position:relative;z-index:1;
+    touch-action:manipulation;white-space:nowrap;
+  }
+  .lang-toggle:hover{background:rgba(31,216,216,0.16);}
+  .case-id{
+    font-family:'Fira Code',monospace;font-size:10.5px;color:var(--text-faint);
+    position:relative;z-index:1;margin-top:12px;padding-top:10px;
+    border-top:1px dashed var(--line);display:flex;justify-content:space-between;
+  }
+  /* tabs */
+  .tabs{display:flex;border-bottom:1px solid var(--line);background:var(--bg-panel);}
+  .tab-btn{
+    flex:1;font-family:'Assistant',sans-serif;font-size:13.5px;font-weight:700;
+    color:var(--text-dim);background:transparent;border:none;border-bottom:3px solid transparent;
+    padding:13px 8px;cursor:pointer;transition:all .2s ease;touch-action:manipulation;
+    -webkit-tap-highlight-color:rgba(31,216,216,0.2);
+    display:flex;align-items:center;justify-content:center;gap:6px;
+  }
+  .tab-btn:hover{color:var(--text);}
+  .tab-btn.active{color:var(--cyan);border-bottom-color:var(--cyan);background:rgba(31,216,216,0.04);}
+  .tab-panel{display:none;}.tab-panel.active{display:block;}
+  /* guided */
+  .progress{display:flex;gap:5px;padding:0 18px 14px;}
+  .progress span{flex:1;height:3px;border-radius:3px;background:var(--line);overflow:hidden;}
+  .progress span i{display:block;height:100%;width:0%;background:var(--cyan);transition:width .4s ease;}
+  .progress span.done i{width:100%;}
+  .chat{padding:20px 18px 8px;display:flex;flex-direction:column;gap:14px;min-height:260px;}
+  .options{display:flex;flex-wrap:wrap;gap:8px;padding:2px 18px 18px 18px;}
+  /* messages */
+  .msg{display:flex;gap:10px;align-items:flex-start;animation:rise 0.35s ease both;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  .msg .avatar{
+    width:28px;height:28px;border-radius:8px;flex:0 0 auto;
+    background:var(--bg-panel-2);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:13px;
+  }
+  .bubble{
+    background:var(--bg-panel-2);border:1px solid var(--line);border-radius:14px;
+    padding:11px 14px;font-size:14.5px;line-height:1.7;max-width:88%;
+  }
+  .msg.user{justify-content:flex-end;}
+  .msg.user .bubble{background:linear-gradient(155deg,rgba(31,216,216,0.16),rgba(31,216,216,0.06));border-color:rgba(31,216,216,0.35);}
+  .bubble b{color:var(--cyan);}
+  .bubble ul{margin:8px 0 2px;padding-inline-start:18px;}
+  .bubble li{margin-bottom:5px;}
+  .bubble .label{display:block;font-family:'Fira Code',monospace;font-size:10px;color:var(--text-faint);margin-bottom:5px;letter-spacing:0.4px;}
+  .tag{display:inline-block;font-family:'Fira Code',monospace;font-size:10.5px;padding:3px 8px;border-radius:5px;margin:2px 4px 2px 0;border:1px solid;}
+  .tag.urgent{color:var(--red);border-color:rgba(255,77,94,0.4);background:rgba(255,77,94,0.08);}
+  .tag.ok{color:var(--green);border-color:rgba(58,210,159,0.4);background:rgba(58,210,159,0.08);}
+  .tag.info{color:var(--cyan);border-color:rgba(31,216,216,0.4);background:rgba(31,216,216,0.08);}
+  /* buttons */
+  .opt-btn{
+    font-family:'Assistant',sans-serif;font-size:14px;font-weight:600;
+    color:var(--text);background:var(--bg-panel-2);border:1px solid var(--line);
+    border-radius:10px;padding:12px 16px;cursor:pointer;transition:all .15s ease;
+    touch-action:manipulation;-webkit-tap-highlight-color:rgba(31,216,216,0.25);
+    user-select:none;-webkit-user-select:none;
+  }
+  .opt-btn:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(31,216,216,0.07);transform:translateY(-1px);}
+  .opt-btn:active{transform:translateY(0);}
+  .opt-btn.restart{color:var(--text-dim);border-style:dashed;}
+  .opt-btn.lang-pick{display:flex;align-items:center;gap:8px;font-size:15px;}
+  /* typing */
+  .typing{display:flex;gap:4px;padding:4px 2px;}
+  .typing i{width:6px;height:6px;border-radius:50%;background:var(--text-faint);animation:blink 1.1s infinite ease-in-out;}
+  .typing i:nth-child(2){animation-delay:.15s;}.typing i:nth-child(3){animation-delay:.3s;}
+  @keyframes blink{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
+
+  /* AI chat */
+  .ai-chat{
+    padding:16px 18px 8px;display:flex;flex-direction:column;gap:14px;
+    min-height:200px;max-height:380px;overflow-y:auto;
+  }
+  .ai-input-row{
+    display:flex;gap:8px;padding:12px 16px 16px;
+    border-top:1px solid var(--line);background:var(--bg-panel);
+  }
+  .ai-input{
+    flex:1;font-family:'Assistant',sans-serif;font-size:14.5px;
+    color:var(--text);background:var(--bg-panel-2);border:1px solid var(--line);
+    border-radius:10px;padding:11px 14px;outline:none;resize:none;
+    min-height:44px;max-height:120px;line-height:1.5;transition:border-color .2s;direction:inherit;
+  }
+  .ai-input::placeholder{color:var(--text-faint);}
+  .ai-input:focus{border-color:var(--cyan-dim);}
+  .ai-input:disabled{opacity:0.5;}
+  .send-btn{
+    width:44px;height:44px;flex:0 0 auto;
+    background:linear-gradient(155deg,var(--cyan),var(--cyan-dim));
+    border:none;border-radius:10px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    touch-action:manipulation;transition:opacity .15s;align-self:flex-end;
+  }
+  .send-btn:hover{opacity:0.85;}
+  .send-btn:disabled{opacity:0.4;cursor:not-allowed;}
+  .send-btn svg{width:18px;height:18px;}
+  .ai-hint{
+    font-family:'Fira Code',monospace;font-size:10.5px;
+    color:var(--text-faint);text-align:center;padding:6px 18px 10px;line-height:1.7;
+  }
+  footer{
+    text-align:center;font-family:'Fira Code',monospace;font-size:10.5px;
+    color:var(--text-faint);margin-top:16px;line-height:1.8;
+  }
+  footer .hot{color:var(--red);}
+  ::-webkit-scrollbar{width:6px;}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="console">
+
+    <!-- topbar -->
+    <div class="topbar">
+      <div class="scanline"></div>
+      <div class="topbar-row">
+        <div class="badge-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#06151a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z"></path>
+            <path d="M9.5 12.2l1.8 1.8 3.2-3.6"></path>
+          </svg>
+        </div>
+        <div>
+          <h1>CyberCop AI</h1>
+          <div class="sub"><span class="dot"></span><span id="subtitleText">מקוון 24/7 — יחידת אבטחה דיגיטלית</span></div>
+        </div>
+        <button class="lang-toggle" id="langToggle" type="button">EN</button>
+      </div>
+      <div class="case-id"><span id="caseId">CASE# 893724</span><span id="caseTime">22:28:10</span></div>
+    </div>
+
+    <!-- tabs -->
+    <div class="tabs">
+      <button class="tab-btn" id="tabGuided" type="button">🗂️ <span id="tabGuidedLabel">מסלול מודרך</span></button>
+      <button class="tab-btn active" id="tabAI" type="button">💬 <span id="tabAILabel">שאל בחופשיות</span></button>
+    </div>
+
+    <!-- guided panel -->
+    <div class="tab-panel" id="panelGuided">
+      <div class="progress" id="progress">
+        <span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span>
+      </div>
+      <div class="chat" id="chat"><div class="msg bot"><div class="avatar">🛡️</div><div class="bubble">שלום! לפני שנתחיל — באיזו שפה תרצה/י להמשיך?<br><span style="opacity:.7">Hi! Before we start — which language would you like to continue in?</span></div></div></div>
+      <div class="options" id="options"><button type="button" class="opt-btn lang-pick">🇮🇱 עברית</button><button type="button" class="opt-btn lang-pick">🇬🇧 English</button></div>
+    </div>
+
+    <!-- AI panel -->
+    <div class="tab-panel active" id="panelAI">
+
+      <!-- chat messages -->
+      <div class="ai-chat" id="aiChat"><div class="msg user"><div class="bubble">המחשב שלי נגנב</div><div class="avatar">🙋</div></div><div class="msg bot"><div class="avatar">🛡️</div><div class="bubble"><span style="color:var(--red)">שגיאה בחיבור ל-AI. בדוק שהמפתח תקין ויש חיבור לאינטרנט.</span></div></div><div class="msg user"><div class="bubble">המחשב שלי נגנב</div><div class="avatar">🙋</div></div><div class="msg bot"><div class="avatar">🛡️</div><div class="bubble">מצטער לשמוע! זו מצב חדוש שדורש פעולה מיידית. הנה הצעדים החשובים:<br><br><b>אם המחשב עדיין מחובר לאינטרנט:</b><br>- התחבר מהמכשיר אחר (טלפון, טאבלט)<br>- שנה את סיסמות כל החשבונות החשובים שלך (דוא"ל, בנק, חשבונות חברתיים)<br>- בטל אישור להרשאות מסויימות אם יש לך זהירות בנושא<br><br><b>צעדים חיוניים:</b><br>1. <b>התקשר למשטרה</b> - חייג <b>100</b> והגש דו"ח על גניבה<br>2. <b>צור דו"ח פלילי</b> - תהיה צורך במק"ם תחקיר בעתיד<br>3. <b>בודק בנקאי</b> - הודע לבנק שלך שנגנב לך מחשב (בגלל הגנה על פרטים פיננסיים)<br><br><b>אם יש לך אפשרות:</b><br>- אם המחשב עדיין מופיע ברשימת המכשירים שלך ב-iCloud (אם Mac) או Google (אם Windows) - בדוק אם אתה יכול לעקוב אחריו או למחוק את הנתונים שלך<br><br><b>הגנה עתידית:</b><br>- בדוק אם היו לך גיבויים חשובים<br>- בחן דירוגי אשראי שלך לחודשים הקרובים<br><br>האם המחשב היה מקובל בסיסמות למידע רגיש? זה יעזור לי לעצור עזרה מדויקת יותר.</div></div></div>
+      <div class="ai-hint" id="aiHint">מופעל על ידי Claude AI · ענה בעברית ובאנגלית</div>
+      <!-- input row -->
+      <div class="ai-input-row">
+        <textarea class="ai-input" id="aiInput" rows="1" placeholder="הקלד שאלה בתחום האבטחה..." style="height: auto;"></textarea>
+        <button class="send-btn" id="sendBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#06151a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+  <footer id="footerBox">מצב חירום מיידי? התקשרו <span class="hot">100</span> — הבוט אינו תחליף לדיווח רשמי<br>CyberCop AI · אבטיפוס לפרויקט אקדמי</footer>
+</div>
+
+<script>
+const STRINGS = {
+  he:{
+    dir:'rtl',htmlLang:'he',
+    subtitle:'מקוון 24/7 — יחידת אבטחה דיגיטלית',toggleLabel:'EN',caseLabel:'CASE#',
+    tabGuided:'מסלול מודרך',tabAI:'שאל בחופשיות',
+    langPrompt:'שלום! לפני שנתחיל — באיזו שפה תרצה/י להמשיך?',
+    langOptions:[{key:'he',label:'🇮🇱 עברית'},{key:'en',label:'🇬🇧 English'}],
+    intro:`שלום, אני <b>CyberCop AI</b> — הבוט הדיגיטלי של יחידת האבטחה.<br>אני כאן כדי לעזור לך לזהות אירוע אבטחה ולקבל הנחיה מיידית, 24/7.<br><br><span class="label">שלב 1 / זיהוי הבעיה</span>נתחיל בכמה שאלות קצרות.`,
+    q1:'מה קרה?',
+    q1opts:[{key:'hacked',label:'🔓 פרצו לי לחשבון'},{key:'suspicious_msg',label:'⚠️ קיבלתי הודעה חשודה'},{key:'identity_theft',label:'🪪 נגנבו לי פרטים אישיים'},{key:'impersonation',label:'🎭 התחזו אליי ברשת'},{key:'bullying',label:'😟 אני חווה בריונות ברשת'}],
+    q2:'באיזו פלטפורמה זה קרה?',
+    q2opts:[{key:'WhatsApp',label:'WhatsApp'},{key:'Instagram',label:'Instagram'},{key:'Facebook',label:'Facebook'},{key:'TikTok',label:'TikTok'},{key:'Email',label:'📧 דואר אלקטרוני'},{key:'Other',label:'אחר'}],
+    q3:'מתי האירוע התרחש?',
+    q3opts:[{key:'today',label:'היום'},{key:'this_week',label:'השבוע'},{key:'over_week',label:'לפני יותר משבוע'}],
+    step2Intro:`<span class="label">שלב 2 / הערכת סיכון</span>תודה. עכשיו אעריך את רמת הסיכון שלך בכמה שאלות נוספות.`,
+    q4:'האם מסרת סיסמה או קוד אימות לגורם כלשהו?',
+    q5:'האם בוצעה גישה לחשבון שלך ללא אישורך?',
+    q6:'האם נגרם לך נזק כספי?',
+    yes:'כן',no:'לא',
+    summaryLabel:'תקציר אירוע',eventType:'סוג אירוע:',platformLabel:'פלטפורמה:',whenLabel:'מועד:',riskLabel:'רמת סיכון:',
+    riskLevels:{high:'גבוהה',medium:'בינונית',low:'נמוכה'},
+    tagFinancial:'נזק כספי',tagAccess:'גישה לא מורשית',tagPassword:'נמסרו פרטי התחברות',
+    blocks:{
+      hacked:{title:'🔓 אם נפרץ חשבון',items:['החלף סיסמה באופן מיידי.','הפעל אימות דו-שלבי.','דווח לפלטפורמה הרלוונטית.']},
+      financial:{title:'💳 הונאה כספית',items:['פנה לבנק שלך באופן מיידי.','חסום את כרטיס האשראי.','הגש תלונה במשטרה.']},
+      bullying:{title:'😟 בריונות ברשת',items:['שמור צילומי מסך כראיה.','חסום את המשתמש הפוגע.','פנה להורה, יועץ או גורם חינוכי.']},
+      identity_theft:{title:'🪪 גניבת זהות',items:['החלף את כל הסיסמאות הרלוונטיות.','בדוק פעילות חריגה בחשבונות הבנק.','פנה למשטרה ולגורמי האבטחה.']},
+      impersonation:{title:'🎭 התחזות',items:['דווח לפלטפורמה על הפרופיל המתחזה.','הודע לחברים שלא לאשר בקשות מהחשבון המזויף.','שקול הגשת תלונה במשטרה.']},
+      suspicious_msg:{title:'⚠️ הודעה חשודה',items:['אל תלחץ על קישורים ואל תוריד קבצים מצורפים.','אל תמסור פרטים אישיים או קודי אימות.','חסום ודווח על השולח.']},
+      general:{title:'✅ הנחיה כללית',items:['עקוב אחר חשבונותיך לסימני פעילות חריגה.','ודא שאימות דו-שלבי מופעל.']}
+    },
+    tipsLabel:'טיפים למניעה',
+    tips:['השתמש בסיסמאות שונות וחזקות.','הפעל אימות דו-שלבי בכל מקום.','אל תלחץ על קישורים לא מוכרים.','עדכן מערכת הפעלה ואפליקציות.'],
+    closing:(id)=>`תיק תועד תחת <b>${id}</b>.<br>מצב דחוף — פנה למשטרה בקו <b>100</b>.<br><br>תודה שפנית ל-CyberCop AI. 🛡️`,
+    restart:'↺ פתח תלונה חדשה',
+    footerHtml:`מצב חירום מיידי? התקשרו <span class="hot">100</span> — הבוט אינו תחליף לדיווח רשמי<br>CyberCop AI · אבטיפוס לפרויקט אקדמי`,
+    problemLabels:{hacked:'פריצה לחשבון',suspicious_msg:'הודעה חשודה',identity_theft:'גניבת פרטים',impersonation:'התחזות',bullying:'בריונות ברשת'},
+    whenLabels:{today:'היום',this_week:'השבוע',over_week:'לפני יותר משבוע'},
+    platformLabels:{WhatsApp:'WhatsApp',Instagram:'Instagram',Facebook:'Facebook',TikTok:'TikTok',Email:'אימייל',Other:'אחר'},
+
+    aiHint:'מופעל על ידי Claude AI · ענה בעברית ובאנגלית',
+    aiPlaceholder:'הקלד שאלה בתחום האבטחה...',
+    aiSystem:`You are CyberCop AI, a professional Israeli police digital security assistant. Help citizens strictly with cybersecurity and online security topics: account hacking, online fraud, identity theft, phishing, online bullying, impersonation, password safety, two-factor authentication, suspicious messages, and related subjects. Always reply in the same language the user writes in — Hebrew or English. Be concise and practical. Use bullet points for action steps. If someone is in immediate danger, tell them to call 100 (Israeli police). IMPORTANT: If the user asks about anything unrelated to cybersecurity or online security (for example: health, law, politics, cooking, homework, relationships, or any other topic), you must refuse politely and in character. Reply in their language with a message such as: 'אני בוט האבטחה הדיגיטלי של המשטרה — אני יכול לסייע רק בנושאי אבטחה וסייבר. לשאלות אחרות, פנה לגורם המתאים.' (Hebrew) or 'I am the police digital security bot — I can only assist with cybersecurity and online safety questions. For other topics, please contact the appropriate service.' (English). Never answer off-topic questions under any circumstances.`,
+    aiErrorMsg:'שגיאה בחיבור ל-AI. בדוק שהמפתח תקין ויש חיבור לאינטרנט.'
+  },
+  en:{
+    dir:'ltr',htmlLang:'en',
+    subtitle:'Online 24/7 — Digital Cyber Unit',toggleLabel:'עב',caseLabel:'CASE#',
+    tabGuided:'Guided flow',tabAI:'Ask freely',
+    langPrompt:'Hi! Before we start — which language would you like to continue in?',
+    langOptions:[{key:'he',label:'🇮🇱 עברית'},{key:'en',label:'🇬🇧 English'}],
+    intro:`Hello, I'm <b>CyberCop AI</b> — the Cyber Unit's digital assistant.<br>I'm here to help you identify a cyber incident and get immediate guidance, 24/7.<br><br><span class="label">Step 1 / Identify the issue</span>Let's start with a few quick questions.`,
+    q1:'What happened?',
+    q1opts:[{key:'hacked',label:'🔓 My account was hacked'},{key:'suspicious_msg',label:'⚠️ I received a suspicious message'},{key:'identity_theft',label:'🪪 My personal details were stolen'},{key:'impersonation',label:'🎭 Someone is impersonating me'},{key:'bullying',label:"😟 I'm experiencing online bullying"}],
+    q2:'Which platform did this happen on?',
+    q2opts:[{key:'WhatsApp',label:'WhatsApp'},{key:'Instagram',label:'Instagram'},{key:'Facebook',label:'Facebook'},{key:'TikTok',label:'TikTok'},{key:'Email',label:'📧 Email'},{key:'Other',label:'Other'}],
+    q3:'When did this happen?',
+    q3opts:[{key:'today',label:'Today'},{key:'this_week',label:'This week'},{key:'over_week',label:'More than a week ago'}],
+    step2Intro:`<span class="label">Step 2 / Risk assessment</span>Thanks. Now I'll assess your risk level with a few more questions.`,
+    q4:'Did you share a password or verification code with anyone?',
+    q5:'Was your account accessed without your permission?',
+    q6:'Did you suffer any financial loss?',
+    yes:'Yes',no:'No',
+    summaryLabel:'Incident summary',eventType:'Incident type:',platformLabel:'Platform:',whenLabel:'When:',riskLabel:'Risk level:',
+    riskLevels:{high:'High',medium:'Medium',low:'Low'},
+    tagFinancial:'Financial loss',tagAccess:'Unauthorized access',tagPassword:'Credentials shared',
+    blocks:{
+      hacked:{title:'🔓 Account hacked',items:['Change your password immediately.','Enable two-factor authentication.','Report it to the platform.']},
+      financial:{title:'💳 Financial fraud',items:['Contact your bank immediately.','Block your credit card.','File a police report.']},
+      bullying:{title:'😟 Online bullying',items:['Save screenshots as evidence.','Block the offending user.','Reach out to a parent or counselor.']},
+      identity_theft:{title:'🪪 Identity theft',items:['Change all relevant passwords.','Check accounts for unusual activity.','Contact the police and cyber authorities.']},
+      impersonation:{title:'🎭 Impersonation',items:['Report the fake profile to the platform.','Warn friends not to accept requests from the fake account.','Consider filing a police report.']},
+      suspicious_msg:{title:"⚠️ Suspicious message",items:["Don't click links or download attachments.","Never share personal details or verification codes.","Block and report the sender."]},
+      general:{title:'✅ General guidance',items:['Monitor your accounts for unusual activity.','Enable two-factor authentication everywhere.']}
+    },
+    tipsLabel:'Prevention tips',
+    tips:['Use strong, unique passwords for each account.','Enable two-factor authentication everywhere.',"Don't click links from unknown sources.",'Keep your OS and apps updated.'],
+    closing:(id)=>`Case logged as <b>${id}</b>.<br>Urgent situation? Call <b>100</b> (Israeli police).<br><br>Thank you for using CyberCop AI. 🛡️`,
+    restart:'↺ Start a new report',
+    footerHtml:`Emergency? Call <span class="hot">100</span> (police) — this bot is not a substitute for an official report<br>CyberCop AI · academic project demo`,
+    problemLabels:{hacked:'Account hacked',suspicious_msg:'Suspicious message',identity_theft:'Identity theft',impersonation:'Impersonation',bullying:'Online bullying'},
+    whenLabels:{today:'Today',this_week:'This week',over_week:'More than a week ago'},
+    platformLabels:{WhatsApp:'WhatsApp',Instagram:'Instagram',Facebook:'Facebook',TikTok:'TikTok',Email:'Email',Other:'Other'},
+
+    aiHint:'Powered by Claude AI · Responds in Hebrew or English',
+    aiPlaceholder:'Type a cybersecurity question...',
+    aiSystem:`You are CyberCop AI, a professional Israeli police digital security assistant. Help citizens strictly with cybersecurity and online security topics: account hacking, online fraud, identity theft, phishing, online bullying, impersonation, password safety, two-factor authentication, suspicious messages, and related subjects. Always reply in the same language the user writes in — Hebrew or English. Be concise and practical. Use bullet points for action steps. If someone is in immediate danger, tell them to call 100 (Israeli police). IMPORTANT: If the user asks about anything unrelated to cybersecurity or online security (for example: health, law, politics, cooking, homework, relationships, or any other topic), you must refuse politely and in character. Reply in their language with a message such as: 'אני בוט האבטחה הדיגיטלי של המשטרה — אני יכול לסייע רק בנושאי אבטחה וסייבר. לשאלות אחרות, פנה לגורם המתאים.' (Hebrew) or 'I am the police digital security bot — I can only assist with cybersecurity and online safety questions. For other topics, please contact the appropriate service.' (English). Never answer off-topic questions under any circumstances.`,
+    aiErrorMsg:'Connection error. Please check your API key and internet connection.'
+  }
+};
+
+/* STATE */
+const chatEl=document.getElementById('chat');
+const optionsEl=document.getElementById('options');
+const progressEl=document.getElementById('progress');
+const htmlRoot=document.getElementById('htmlRoot');
+const langToggle=document.getElementById('langToggle');
+const aiChatEl=document.getElementById('aiChat');
+const aiInput=document.getElementById('aiInput');
+const sendBtn=document.getElementById('sendBtn');
+
+
+let lang='he', T=STRINGS.he;
+let apiKey='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'; // <-- INSERT YOUR ANTHROPIC API KEY HERE
+let aiHistory=[], aiIsBusy=false;
+const st={problem:null,platform:null,when:null,gavePassword:null,accessed:null,financial:null};
+let stepCount=0;
+
+
+
+/* TABS */
+document.getElementById('tabGuided').addEventListener('click',()=>switchTab('guided'));
+document.getElementById('tabAI').addEventListener('click',()=>switchTab('ai'));
+function switchTab(w){
+  document.getElementById('tabGuided').classList.toggle('active',w==='guided');
+  document.getElementById('tabAI').classList.toggle('active',w==='ai');
+  document.getElementById('panelGuided').classList.toggle('active',w==='guided');
+  document.getElementById('panelAI').classList.toggle('active',w==='ai');
+}
+
+/* UTILS */
+function setCaseId(){
+  const n=Math.floor(100000+Math.random()*899999);
+  document.getElementById('caseId').textContent=T.caseLabel+' '+n;
+  function tick(){document.getElementById('caseTime').textContent=new Date().toLocaleTimeString(lang==='he'?'he-IL':'en-US');}
+  tick();
+  if(!window._ct) window._ct=setInterval(tick,1000);
+}
+function applyStaticText(){
+  htmlRoot.setAttribute('lang',T.htmlLang);
+  htmlRoot.setAttribute('dir',T.dir);
+  document.getElementById('subtitleText').textContent=T.subtitle;
+  langToggle.textContent=T.toggleLabel;
+  document.getElementById('footerBox').innerHTML=T.footerHtml;
+  document.getElementById('tabGuidedLabel').textContent=T.tabGuided;
+  document.getElementById('tabAILabel').textContent=T.tabAI;
+
+  document.getElementById('aiHint').textContent=T.aiHint;
+  aiInput.placeholder=T.aiPlaceholder;
+
+}
+function updateProgress(){
+  progressEl.querySelectorAll('span').forEach((s,i)=>s.classList.toggle('done',i<stepCount));
+}
+function scrollDown(el){
+  requestAnimationFrame(()=>{
+    const t=el||chatEl.lastElementChild;
+    if(t&&t.scrollIntoView) t.scrollIntoView({behavior:'smooth',block:'end'});
+    else window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+  });
+}
+function addUserMsg(txt,c){
+  c=c||chatEl;
+  const d=document.createElement('div');
+  d.className='msg user';
+  d.innerHTML=`<div class="bubble">${txt}</div><div class="avatar">🙋</div>`;
+  c.appendChild(d); scrollDown(d);
+}
+function addBotMsg(html,{delay=550,container}={}){
+  const c=container||chatEl;
+  return new Promise(resolve=>{
+    const d=document.createElement('div');
+    d.className='msg bot';
+    d.innerHTML=`<div class="avatar">🛡️</div><div class="bubble"><div class="typing"><i></i><i></i><i></i></div></div>`;
+    c.appendChild(d); scrollDown(d);
+    setTimeout(()=>{ d.querySelector('.bubble').innerHTML=html; scrollDown(d); resolve(d); },delay);
+  });
+}
+function clearOptions(){optionsEl.innerHTML='';}
+function renderOptions(opts,extra){
+  clearOptions();
+  opts.forEach(o=>{
+    const b=document.createElement('button');
+    b.type='button'; b.className='opt-btn'+(extra?' '+extra:''); b.textContent=o.label;
+    b.addEventListener('click',()=>{ clearOptions(); addUserMsg(o.label); o.onSelect(); });
+    optionsEl.appendChild(b);
+  });
+  scrollDown(optionsEl);
+}
+function restartBtn(){
+  const b=document.createElement('button');
+  b.type='button'; b.className='opt-btn restart'; b.textContent=T.restart;
+  b.addEventListener('click',()=>resetFlow());
+  optionsEl.appendChild(b);
+}
+
+/* AI CHAT */
+aiInput.addEventListener('input',()=>{ aiInput.style.height='auto'; aiInput.style.height=Math.min(aiInput.scrollHeight,120)+'px'; });
+aiInput.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAI();} });
+sendBtn.addEventListener('click',sendAI);
+
+async function sendAI(){
+  const txt=aiInput.value.trim();
+  if(!txt||aiIsBusy||!apiKey) return;
+  aiIsBusy=true; sendBtn.disabled=true;
+  addUserMsg(txt,aiChatEl);
+  aiHistory.push({role:'user',content:txt});
+  aiInput.value=''; aiInput.style.height='auto';
+
+  const typDiv=document.createElement('div');
+  typDiv.className='msg bot';
+  typDiv.innerHTML=`<div class="avatar">🛡️</div><div class="bubble"><div class="typing"><i></i><i></i><i></i></div></div>`;
+  aiChatEl.appendChild(typDiv); scrollDown(typDiv);
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1000,system:T.aiSystem,messages:aiHistory})
+    });
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.error?.message||'API error '+res.status);
+    const reply=data.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+    const html=reply
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/\*\*(.*?)\*\*/g,'<b>$1</b>')
+      .replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');
+    typDiv.querySelector('.bubble').innerHTML=html;
+    aiHistory.push({role:'assistant',content:reply});
+    scrollDown(typDiv);
+  }catch(err){
+    typDiv.querySelector('.bubble').innerHTML=`<span style="color:var(--red)">${T.aiErrorMsg}</span>`;
+    aiHistory.pop();
+  }
+  aiIsBusy=false; sendBtn.disabled=false; aiInput.focus();
+}
+
+/* LANGUAGE */
+function pickLanguage(){
+  lang='he'; T=STRINGS.he; applyStaticText(); setCaseId();
+  chatEl.innerHTML=''; clearOptions(); stepCount=0; updateProgress(); aiHistory=[];
+  const d=document.createElement('div');
+  d.className='msg bot';
+  d.innerHTML=`<div class="avatar">🛡️</div><div class="bubble">${STRINGS.he.langPrompt}<br><span style="opacity:.7">${STRINGS.en.langPrompt}</span></div>`;
+  chatEl.appendChild(d); scrollDown(d);
+  renderOptions(STRINGS.he.langOptions.map(o=>({label:o.label,onSelect:()=>selectLanguage(o.key)})),'lang-pick');
+}
+function selectLanguage(k){ lang=k; T=STRINGS[k]; applyStaticText(); setCaseId(); aiHistory=[]; start(); }
+langToggle.addEventListener('click',()=>{ const o=lang==='he'?'en':'he'; resetFlow(o); });
+function resetFlow(force){
+  Object.keys(st).forEach(k=>st[k]=null);
+  stepCount=0; updateProgress();
+  chatEl.innerHTML=''; clearOptions();
+  aiHistory=[]; aiChatEl.innerHTML='';
+  if(force){ lang=force; T=STRINGS[force]; applyStaticText(); setCaseId(); start(); }
+  else pickLanguage();
+}
+
+/* GUIDED FLOW */
+async function start(){ await addBotMsg(T.intro,{delay:400}); step1_problem(); }
+function step1_problem(){
+  stepCount=1; updateProgress();
+  addBotMsg(`<b>${T.q1}</b>`,{delay:250}).then(()=>renderOptions(T.q1opts.map(o=>({label:o.label,onSelect:()=>{st.problem=o.key;step1_platform();}}))));
+}
+function step1_platform(){
+  stepCount=2; updateProgress();
+  addBotMsg(`<b>${T.q2}</b>`,{delay:250}).then(()=>renderOptions(T.q2opts.map(o=>({label:o.label,onSelect:()=>{st.platform=o.key;step1_when();}}))));
+}
+function step1_when(){
+  stepCount=3; updateProgress();
+  addBotMsg(`<b>${T.q3}</b>`,{delay:250}).then(()=>renderOptions(T.q3opts.map(o=>({label:o.label,onSelect:()=>{st.when=o.key;step2_intro();}}))));
+}
+async function step2_intro(){ await addBotMsg(T.step2Intro,{delay:350}); step2_password(); }
+function step2_password(){
+  stepCount=4; updateProgress();
+  addBotMsg(`<b>${T.q4}</b>`,{delay:250}).then(()=>renderOptions([{label:T.yes,onSelect:()=>{st.gavePassword=true;step2_access();}},{label:T.no,onSelect:()=>{st.gavePassword=false;step2_access();}}]));
+}
+function step2_access(){
+  stepCount=5; updateProgress();
+  addBotMsg(`<b>${T.q5}</b>`,{delay:250}).then(()=>renderOptions([{label:T.yes,onSelect:()=>{st.accessed=true;step2_financial();}},{label:T.no,onSelect:()=>{st.accessed=false;step2_financial();}}]));
+}
+function step2_financial(){
+  stepCount=6; updateProgress();
+  addBotMsg(`<b>${T.q6}</b>`,{delay:250}).then(()=>renderOptions([{label:T.yes,onSelect:()=>{st.financial=true;renderSummary();}},{label:T.no,onSelect:()=>{st.financial=false;renderSummary();}}]));
+}
+function riskLevel(){
+  let s=0;
+  if(st.gavePassword) s+=2; if(st.accessed) s+=2; if(st.financial) s+=3;
+  if(st.problem==='hacked'||st.problem==='identity_theft') s+=1;
+  if(s>=5) return{label:T.riskLevels.high,cls:'urgent'};
+  if(s>=2) return{label:T.riskLevels.medium,cls:'info'};
+  return{label:T.riskLevels.low,cls:'ok'};
+}
+function guidanceBlocks(){
+  const b=[];
+  if(st.problem==='hacked'||st.accessed) b.push(T.blocks.hacked);
+  if(st.financial) b.push(T.blocks.financial);
+  if(st.problem==='bullying') b.push(T.blocks.bullying);
+  if(st.problem==='identity_theft') b.push(T.blocks.identity_theft);
+  if(st.problem==='impersonation') b.push(T.blocks.impersonation);
+  if(st.problem==='suspicious_msg') b.push(T.blocks.suspicious_msg);
+  if(b.length===0) b.push(T.blocks.general);
+  return b;
+}
+async function renderSummary(){
+  clearOptions();
+  const risk=riskLevel();
+  await addBotMsg(`<span class="label">${T.summaryLabel}</span>
+    <b>${T.eventType}</b> ${T.problemLabels[st.problem]||st.problem}<br>
+    <b>${T.platformLabel}</b> ${T.platformLabels[st.platform]||st.platform}<br>
+    <b>${T.whenLabel}</b> ${T.whenLabels[st.when]||st.when}<br><br>
+    <span class="tag ${risk.cls}">${T.riskLabel} ${risk.label}</span>
+    ${st.financial?`<span class="tag urgent">${T.tagFinancial}</span>`:''}
+    ${st.accessed?`<span class="tag urgent">${T.tagAccess}</span>`:''}
+    ${st.gavePassword?`<span class="tag info">${T.tagPassword}</span>`:''}
+  `,{delay:500});
+  for(const b of guidanceBlocks()) await addBotMsg(`<b>${b.title}</b><ul>${b.items.map(i=>`<li>${i}</li>`).join('')}</ul>`,{delay:600});
+  await addBotMsg(`<span class="label">${T.tipsLabel}</span><ul>${T.tips.map(i=>`<li>${i}</li>`).join('')}</ul>`,{delay:600});
+  await addBotMsg(T.closing(document.getElementById('caseId').textContent),{delay:500});
+  restartBtn();
+}
+
+pickLanguage();
+</script>
+
+
+</body></html>
