@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<!-- saved from url=(0050)file:///C:/Users/dron/Downloads/cybercop-ai_7.html -->
+<!-- saved from url=(0050)file:///C:/Users/dron/Downloads/cybercop-ai_8.html -->
 <html lang="he" dir="rtl" id="htmlRoot"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CyberCop AI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-<link href="./CyberCop AI_files/css2" rel="stylesheet">
+<link href="./index_files/css2" rel="stylesheet">
 <style>
   :root{
     --bg-deep:#070d1a;--bg-panel:#0d1a2e;--bg-panel-2:#112239;--line:#1c3354;
@@ -117,6 +117,49 @@
   .typing i:nth-child(2){animation-delay:.15s;}.typing i:nth-child(3){animation-delay:.3s;}
   @keyframes blink{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
 
+  /* API key box */
+  .key-box{
+    margin:16px 18px 0;
+    background:rgba(255,176,32,0.06);
+    border:1px solid rgba(255,176,32,0.28);
+    border-radius:12px;
+    padding:13px 15px;
+  }
+  .key-box-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .key-label{font-family:'Fira Code',monospace;font-size:11px;color:#ffb020;display:flex;align-items:center;gap:6px;}
+  .key-saved-badge{
+    font-family:'Fira Code',monospace;font-size:10px;
+    color:var(--green);background:rgba(58,210,159,0.1);
+    border:1px solid rgba(58,210,159,0.3);border-radius:5px;
+    padding:2px 8px;display:none;
+  }
+  .key-saved-badge.visible{display:inline-block;}
+  .key-row{display:flex;gap:8px;}
+  .key-input{
+    flex:1;font-family:'Fira Code',monospace;font-size:12px;
+    color:var(--text);background:var(--bg-panel-2);
+    border:1px solid var(--line);border-radius:8px;
+    padding:9px 12px;outline:none;letter-spacing:0.5px;
+    transition:border-color .2s;
+  }
+  .key-input:focus{border-color:#ffb020;}
+  .key-input::placeholder{color:var(--text-faint);letter-spacing:0;}
+  .key-save-btn{
+    font-family:'Assistant',sans-serif;font-size:13px;font-weight:700;
+    color:#070d1a;background:#ffb020;border:none;border-radius:8px;
+    padding:9px 14px;cursor:pointer;touch-action:manipulation;white-space:nowrap;transition:opacity .15s;
+  }
+  .key-save-btn:hover{opacity:0.85;}
+  .key-forget{
+    font-family:'Fira Code',monospace;font-size:10px;
+    color:var(--text-faint);background:transparent;border:none;
+    cursor:pointer;padding:4px 0;margin-top:6px;display:none;text-decoration:underline;
+    touch-action:manipulation;
+  }
+  .key-forget.visible{display:inline-block;}
+  .key-status{font-family:'Fira Code',monospace;font-size:10.5px;margin-top:7px;display:none;}
+  .key-status.ok{color:var(--green);display:block;}
+  .key-status.err{color:var(--red);display:block;}
   /* AI chat */
   .ai-chat{
     padding:16px 18px 8px;display:flex;flex-direction:column;gap:14px;
@@ -178,17 +221,17 @@
         </div>
         <button class="lang-toggle" id="langToggle" type="button">EN</button>
       </div>
-      <div class="case-id"><span id="caseId">CASE# 350327</span><span id="caseTime">22:54:00</span></div>
+      <div class="case-id"><span id="caseId">CASE# 965806</span><span id="caseTime">23:40:37</span></div>
     </div>
 
     <!-- tabs -->
     <div class="tabs">
-      <button class="tab-btn active" id="tabGuided" type="button">🗂️ <span id="tabGuidedLabel">מסלול מודרך</span></button>
-      <button class="tab-btn" id="tabAI" type="button">💬 <span id="tabAILabel">שאל בחופשיות</span></button>
+      <button class="tab-btn" id="tabGuided" type="button">🗂️ <span id="tabGuidedLabel">מסלול מודרך</span></button>
+      <button class="tab-btn active" id="tabAI" type="button">💬 <span id="tabAILabel">שאל בחופשיות</span></button>
     </div>
 
     <!-- guided panel -->
-    <div class="tab-panel active" id="panelGuided">
+    <div class="tab-panel" id="panelGuided">
       <div class="progress" id="progress">
         <span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span>
       </div>
@@ -197,14 +240,27 @@
     </div>
 
     <!-- AI panel -->
-    <div class="tab-panel" id="panelAI">
+    <div class="tab-panel active" id="panelAI">
 
+      <!-- API key (stored in localStorage) -->
+      <div class="key-box" id="keyBox">
+        <div class="key-box-top">
+          <div class="key-label">🔑 <span id="keyLabel">Anthropic API Key</span></div>
+          <span class="key-saved-badge visible" id="keySavedBadge">✅ שמור</span>
+        </div>
+        <div class="key-row" id="keyRow" style="display: none;">
+          <input class="key-input" id="keyInput" type="password" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+          <button class="key-save-btn" id="keySaveBtn" type="button">שמור</button>
+        </div>
+        <div class="key-status ok" id="keyStatus" style="display: none;">✅ מפתח נשמר במכשיר זה!</div>
+        <button class="key-forget visible" id="keyForget" type="button">🗑 שכח את המפתח</button>
+      </div>
       <!-- chat messages -->
-      <div class="ai-chat" id="aiChat"></div>
+      <div class="ai-chat" id="aiChat"><div class="msg user"><div class="bubble">אבד לי המחשב</div><div class="avatar">🙋</div></div><div class="msg bot"><div class="avatar">🛡️</div><div class="bubble">שלום! אני מבין שזה מצב דחוק. בואו נפעל בשיטתיות:<br><br><b>צעדים דחופים:</b><br><br>1. <b>התקשר למשטרה</b> - חייג <b>100</b> כדי לדווח על אבדן המחשב<br>   - זה חשוב לתיעוד והצפנים<br><br>2. <b>אבטחה דיגיטלית מיידית:</b><br>   - משנה סיסמאות חשמליות (Gmail, בנק, עבודה) מהמכשיר אחר<br>   - הפעל "מצא את המכשיר שלי" / Remote Wipe אם זה Windows או Mac<br>   - בטל גישה לחשבונות אם תומך בזה<br><br>3. <b>חשבונות חשמליים:</b><br>   - צור סיסמה חדשה בכל חשבון שהיה מחובר<br>   - בדוק פעילות חשודה בחשבון בנק ופתחי עבודה<br><br>4. <b>שירותים נוספים:</b><br>   - צור קשר עם ספק האינטרנט שלך<br>   - אם יש בנק - הודע להם על האבדן<br><br><b>למה זה חשוב?</b> מחשב שנאבד עלול להיות בגישה של אחרים לנתונים אישיים וחסויים.<br><br><b>יש לך שאלות구체יות</b> על אבטחת חשבונותיך או צעדים נוספים?</div></div></div>
       <div class="ai-hint" id="aiHint">מופעל על ידי Claude AI · ענה בעברית ובאנגלית</div>
       <!-- input row -->
       <div class="ai-input-row">
-        <textarea class="ai-input" id="aiInput" rows="1" placeholder="הקלד שאלה בתחום האבטחה..."></textarea>
+        <textarea class="ai-input" id="aiInput" rows="1" placeholder="הקלד שאלה בתחום האבטחה..." style="height: auto;"></textarea>
         <button class="send-btn" id="sendBtn" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="#06151a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
@@ -321,12 +377,69 @@ const sendBtn=document.getElementById('sendBtn');
 
 
 let lang='he', T=STRINGS.he;
-let apiKey='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';
+let apiKey=localStorage.getItem('cybercop_api_key')||'';
 let aiHistory=[], aiIsBusy=false;
 const st={problem:null,platform:null,when:null,gavePassword:null,accessed:null,financial:null};
 let stepCount=0;
 
 
+
+
+/* API KEY - localStorage */
+const keyInput=document.getElementById('keyInput');
+const keySaveBtn=document.getElementById('keySaveBtn');
+const keyStatus=document.getElementById('keyStatus');
+const keyForget=document.getElementById('keyForget');
+const keySavedBadge=document.getElementById('keySavedBadge');
+const keyRow=document.getElementById('keyRow');
+
+function initKey(){
+  const stored=localStorage.getItem('cybercop_api_key');
+  if(stored){
+    apiKey=stored;
+    showKeySaved();
+  }
+}
+function showKeySaved(){
+  keyRow.style.display='none';
+  keySavedBadge.classList.add('visible');
+  keyForget.classList.add('visible');
+  keyStatus.style.display='none';
+  aiInput.disabled=false;
+  sendBtn.disabled=false;
+}
+function showKeyEntry(){
+  keyRow.style.display='flex';
+  keySavedBadge.classList.remove('visible');
+  keyForget.classList.remove('visible');
+  aiInput.disabled=true;
+  sendBtn.disabled=true;
+}
+keySaveBtn.addEventListener('click',saveKey);
+keyInput.addEventListener('keydown',e=>{ if(e.key==='Enter') saveKey(); });
+keyForget.addEventListener('click',()=>{
+  localStorage.removeItem('cybercop_api_key');
+  apiKey='';
+  keyInput.value='';
+  keyStatus.textContent='';
+  keyStatus.className='key-status';
+  showKeyEntry();
+});
+function saveKey(){
+  const val=keyInput.value.trim();
+  if(!val.startsWith('sk-ant-')){
+    keyStatus.textContent='❌ מפתח לא תקין — חייב להתחיל ב-sk-ant-';
+    keyStatus.className='key-status err';
+    return;
+  }
+  apiKey=val;
+  localStorage.setItem('cybercop_api_key',val);
+  keyStatus.textContent='✅ מפתח נשמר במכשיר זה!';
+  keyStatus.className='key-status ok';
+  keyInput.value='';
+  setTimeout(()=>{ showKeySaved(); aiInput.focus(); },800);
+}
+initKey();
 
 /* TABS */
 document.getElementById('tabGuided').addEventListener('click',()=>switchTab('guided'));
