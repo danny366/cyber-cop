@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<!-- saved from url=(0050)file:///C:/Users/dron/Downloads/CyberCop%20AI.html -->
+<!-- saved from url=(0050)file:///C:/Users/dron/Downloads/cybercop-ai_7.html -->
 <html lang="he" dir="rtl" id="htmlRoot"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CyberCop AI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-<link href="./index_files/css2" rel="stylesheet">
+<link href="./CyberCop AI_files/css2" rel="stylesheet">
 <style>
   :root{
     --bg-deep:#070d1a;--bg-panel:#0d1a2e;--bg-panel-2:#112239;--line:#1c3354;
@@ -178,17 +178,17 @@
         </div>
         <button class="lang-toggle" id="langToggle" type="button">EN</button>
       </div>
-      <div class="case-id"><span id="caseId">CASE# 893724</span><span id="caseTime">22:28:10</span></div>
+      <div class="case-id"><span id="caseId">CASE# 350327</span><span id="caseTime">22:54:00</span></div>
     </div>
 
     <!-- tabs -->
     <div class="tabs">
-      <button class="tab-btn" id="tabGuided" type="button">🗂️ <span id="tabGuidedLabel">מסלול מודרך</span></button>
-      <button class="tab-btn active" id="tabAI" type="button">💬 <span id="tabAILabel">שאל בחופשיות</span></button>
+      <button class="tab-btn active" id="tabGuided" type="button">🗂️ <span id="tabGuidedLabel">מסלול מודרך</span></button>
+      <button class="tab-btn" id="tabAI" type="button">💬 <span id="tabAILabel">שאל בחופשיות</span></button>
     </div>
 
     <!-- guided panel -->
-    <div class="tab-panel" id="panelGuided">
+    <div class="tab-panel active" id="panelGuided">
       <div class="progress" id="progress">
         <span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span>
       </div>
@@ -197,14 +197,14 @@
     </div>
 
     <!-- AI panel -->
-    <div class="tab-panel active" id="panelAI">
+    <div class="tab-panel" id="panelAI">
 
       <!-- chat messages -->
-      <div class="ai-chat" id="aiChat"><div class="msg user"><div class="bubble">המחשב שלי נגנב</div><div class="avatar">🙋</div></div><div class="msg bot"><div class="avatar">🛡️</div><div class="bubble"><span style="color:var(--red)">שגיאה בחיבור ל-AI. בדוק שהמפתח תקין ויש חיבור לאינטרנט.</span></div></div><div class="msg user"><div class="bubble">המחשב שלי נגנב</div><div class="avatar">🙋</div></div><div class="msg bot"><div class="avatar">🛡️</div><div class="bubble">מצטער לשמוע! זו מצב חדוש שדורש פעולה מיידית. הנה הצעדים החשובים:<br><br><b>אם המחשב עדיין מחובר לאינטרנט:</b><br>- התחבר מהמכשיר אחר (טלפון, טאבלט)<br>- שנה את סיסמות כל החשבונות החשובים שלך (דוא"ל, בנק, חשבונות חברתיים)<br>- בטל אישור להרשאות מסויימות אם יש לך זהירות בנושא<br><br><b>צעדים חיוניים:</b><br>1. <b>התקשר למשטרה</b> - חייג <b>100</b> והגש דו"ח על גניבה<br>2. <b>צור דו"ח פלילי</b> - תהיה צורך במק"ם תחקיר בעתיד<br>3. <b>בודק בנקאי</b> - הודע לבנק שלך שנגנב לך מחשב (בגלל הגנה על פרטים פיננסיים)<br><br><b>אם יש לך אפשרות:</b><br>- אם המחשב עדיין מופיע ברשימת המכשירים שלך ב-iCloud (אם Mac) או Google (אם Windows) - בדוק אם אתה יכול לעקוב אחריו או למחוק את הנתונים שלך<br><br><b>הגנה עתידית:</b><br>- בדוק אם היו לך גיבויים חשובים<br>- בחן דירוגי אשראי שלך לחודשים הקרובים<br><br>האם המחשב היה מקובל בסיסמות למידע רגיש? זה יעזור לי לעצור עזרה מדויקת יותר.</div></div></div>
+      <div class="ai-chat" id="aiChat"></div>
       <div class="ai-hint" id="aiHint">מופעל על ידי Claude AI · ענה בעברית ובאנגלית</div>
       <!-- input row -->
       <div class="ai-input-row">
-        <textarea class="ai-input" id="aiInput" rows="1" placeholder="הקלד שאלה בתחום האבטחה..." style="height: auto;"></textarea>
+        <textarea class="ai-input" id="aiInput" rows="1" placeholder="הקלד שאלה בתחום האבטחה..."></textarea>
         <button class="send-btn" id="sendBtn" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="#06151a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
@@ -321,7 +321,7 @@ const sendBtn=document.getElementById('sendBtn');
 
 
 let lang='he', T=STRINGS.he;
-let apiKey='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'; // <-- INSERT YOUR ANTHROPIC API KEY HERE
+let apiKey='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';
 let aiHistory=[], aiIsBusy=false;
 const st={problem:null,platform:null,when:null,gavePassword:null,accessed:null,financial:null};
 let stepCount=0;
@@ -439,7 +439,8 @@ async function sendAI(){
     aiHistory.push({role:'assistant',content:reply});
     scrollDown(typDiv);
   }catch(err){
-    typDiv.querySelector('.bubble').innerHTML=`<span style="color:var(--red)">${T.aiErrorMsg}</span>`;
+    const detail = err && err.message ? err.message : String(err);
+    typDiv.querySelector('.bubble').innerHTML=`<span style="color:var(--red)">${T.aiErrorMsg}<br><span style="font-family:monospace;font-size:11px;opacity:0.7">${detail}</span></span>`;
     aiHistory.pop();
   }
   aiIsBusy=false; sendBtn.disabled=false; aiInput.focus();
